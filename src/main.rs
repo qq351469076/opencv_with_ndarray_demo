@@ -1,11 +1,156 @@
 use ndarray::prelude::*;
-use opencv::core::{Point, Rect, Scalar, CV_8UC3, CV_8UC4};
+use opencv::core::{
+    bitwise_and, bitwise_not, bitwise_or, bitwise_xor, no_array, Mat_AUTO_STEP, Point, Rect,
+    Scalar, CV_8UC1, CV_8UC3, CV_8UC4,
+};
 use opencv::highgui::{imshow, wait_key};
 use opencv::imgcodecs::{imread, IMREAD_COLOR};
-use opencv::imgproc::LINE_8;
+use opencv::imgproc::{COLOR_BGR2RGB, LINE_8};
 use opencv::prelude::*;
 use opencv::{highgui, imgproc};
 use std::ffi::c_void;
+
+/// 异或操作, 交集为0, 不交集为1
+///
+/// 涉及创建单通道及索引赋值
+fn xor_operate() {
+    // A数组
+    let mut a = Array::<u8, _>::zeros((200, 200).f());
+
+    // 按行进行遍历修改
+    a.slice_mut(s![20..120, 20..120]).fill(255);
+
+    // 将多维数组免拷贝转换至Mat
+    let mat_a = unsafe {
+        Mat::new_rows_cols_with_data(200, 200, CV_8UC1, a.as_mut_ptr() as *mut c_void, 0).unwrap()
+    };
+
+    imshow("mat_a", &mat_a).unwrap();
+
+    // B数组
+    let mut b = Array::<u8, _>::zeros((200, 200).f());
+
+    // 按行进行遍历修改
+    b.slice_mut(s![80..180, 80..180]).fill(255);
+
+    // 将多维数组免拷贝转换至Mat
+    let mat_b = unsafe {
+        Mat::new_rows_cols_with_data(200, 200, CV_8UC1, b.as_mut_ptr() as *mut c_void, 0).unwrap()
+    };
+
+    imshow("mat_b", &mat_b).unwrap();
+
+    let mut new_mat = Mat::default();
+
+    bitwise_xor(&mat_a, &mat_b, &mut new_mat, &opencv::core::no_array()).unwrap();
+
+    imshow("and", &new_mat).unwrap();
+
+    wait_key(10000).unwrap();
+}
+
+/// 或操作, 取两个图片共有的值, 无论是0还是非0
+///
+/// 涉及创建单通道及索引赋值
+fn or_operate() {
+    // A数组
+    let mut a = Array::<u8, _>::zeros((200, 200).f());
+
+    // 按行进行遍历修改
+    a.slice_mut(s![20..120, 20..120]).fill(255);
+
+    // 将多维数组免拷贝转换至Mat
+    let mat_a = unsafe {
+        Mat::new_rows_cols_with_data(200, 200, CV_8UC1, a.as_mut_ptr() as *mut c_void, 0).unwrap()
+    };
+
+    imshow("mat_a", &mat_a).unwrap();
+
+    // B数组
+    let mut b = Array::<u8, _>::zeros((200, 200).f());
+
+    // 按行进行遍历修改
+    b.slice_mut(s![80..180, 80..180]).fill(255);
+
+    // 将多维数组免拷贝转换至Mat
+    let mat_b = unsafe {
+        Mat::new_rows_cols_with_data(200, 200, CV_8UC1, b.as_mut_ptr() as *mut c_void, 0).unwrap()
+    };
+
+    imshow("mat_b", &mat_b).unwrap();
+
+    let mut new_mat = Mat::default();
+
+    bitwise_or(&mat_a, &mat_b, &mut new_mat, &opencv::core::no_array()).unwrap();
+
+    imshow("and", &new_mat).unwrap();
+
+    wait_key(10000).unwrap();
+}
+
+/// 与操作, 取两个图片的交集, 或者同时为真, 则为真, 否则为假
+///
+/// 涉及创建单通道及索引赋值
+fn and_operate() {
+    // A数组
+    let mut a = Array::<u8, _>::zeros((200, 200).f());
+
+    // 按行进行遍历修改
+    a.slice_mut(s![20..120, 20..120]).fill(255);
+
+    // 将多维数组免拷贝转换至Mat
+    let mat_a = unsafe {
+        Mat::new_rows_cols_with_data(200, 200, CV_8UC1, a.as_mut_ptr() as *mut c_void, 0).unwrap()
+    };
+
+    imshow("mat_a", &mat_a).unwrap();
+
+    // B数组
+    let mut b = Array::<u8, _>::zeros((200, 200).f());
+
+    // 按行进行遍历修改
+    b.slice_mut(s![80..180, 80..180]).fill(255);
+
+    // 将多维数组免拷贝转换至Mat
+    let mat_b = unsafe {
+        Mat::new_rows_cols_with_data(200, 200, CV_8UC1, b.as_mut_ptr() as *mut c_void, 0).unwrap()
+    };
+
+    imshow("mat_b", &mat_b).unwrap();
+
+    let mut new_mat = Mat::default();
+
+    bitwise_and(&mat_a, &mat_b, &mut new_mat, &opencv::core::no_array()).unwrap();
+
+    imshow("and", &new_mat).unwrap();
+
+    wait_key(10000).unwrap();
+}
+
+/// 非操作, 翻转数组元素, 0变1, 1变0
+///
+/// 涉及创建单通道及索引赋值
+fn not_operate() {
+    let mut n = Array::<u8, _>::zeros((200, 200).f());
+
+    // 按行进行遍历修改
+    n.slice_mut(s![50..150, 50..150]).fill(255);
+
+    // 将多维数组免拷贝转换至Mat
+    let mat = unsafe {
+        Mat::new_rows_cols_with_data(200, 200, CV_8UC1, n.as_mut_ptr() as *mut c_void, 0).unwrap()
+    };
+
+    imshow("3333", &mat).unwrap();
+
+    let mut new_mat = Mat::default();
+
+    bitwise_not(&mat, &mut new_mat, &opencv::core::no_array()).unwrap();
+
+    imshow("asdasd", &new_mat).unwrap();
+
+    wait_key(10000).unwrap();
+}
 
 /// 绘制文字
 fn draw_text() {
@@ -168,4 +313,8 @@ fn main() {
     // draw_line();
     // draw_rectangle();
     // draw_text();
+    // not_operate();
+    // and_operate();
+    // or_operate();
+    // xor_operate();
 }
